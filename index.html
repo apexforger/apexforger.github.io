@@ -1,0 +1,194 @@
+<html>
+<head>
+  <style type="text/css">
+    @media print {
+      @page {
+          size: letter;
+          margin: 0.75in;
+      }
+    }
+    body {
+      font-family: "Times New Roman", Times, serif;
+    }
+    div#content {
+    }
+    h1 {
+      margin:4px;
+      padding:0;
+      text-align: center;
+      font-size: 30pt;
+      line-height: 30pt;
+    }
+    h2 {
+      margin:2px;
+      padding:0;
+      text-align: center;
+      font-size: 24pt;
+
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    td {
+      border:1px solid black;
+      /*border-color: black;*/
+    }
+    td.period {
+      padding: 16px;
+      font-size: 24pt;
+      text-align: center;
+    }
+    span.datetime {
+      font-weight: bold;
+    }
+    td.left {
+      width: 50%;
+      border-width: 1px 1px 1px 0;
+    }
+    td.right {
+      width: 50%;
+      border-width: 1px 0 1px 1px;
+    }
+    td.issuance {
+      padding:2px 14px;
+      font-size: 14pt;
+      line-height: 24pt;
+    }
+    span.label {
+      font-weight: bold;
+    }
+    div.contract {
+      width: 100%;
+      padding: 2px 0;
+      font-size: 11.5pt;
+    }
+    div.barcode {
+      text-align:right;
+      margin-bottom:10px;
+      margin-top:-15px;
+    }
+    hr {
+      background-color: white;
+      border:0;
+      border-top: 4px dashed black;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/jsbarcode/3.6.0/barcodes/JsBarcode.code128.min.js"></script>
+  <script type="text/javascript">
+    // DOM ready callback
+    let ready = function(){
+      setTimeframe()
+      randomize()
+    }
+    // Render barcode (called by randomize)
+    let renderBarcode = function(value){
+      JsBarcode("#barcode", value, {
+          format: "CODE128",
+          height: "50",
+          width: "1",
+          displayValue: false,
+          margin: 0
+      })
+    }
+    // Set datetime-specific text content
+    let setTimeframe = function(){
+      let now = new Date()
+      let tomorrow = new Date()
+      tomorrow.setDate(now.getDate() + 1)
+      let config = {
+        startWeekday: now.toLocaleDateString('en-US', {weekday: 'long'}),
+        startDate: now.toLocaleDateString('en-US', {month: 'numeric', day: 'numeric', year: '2-digit'}),
+        startTime: now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'}),
+        endWeekday: tomorrow.toLocaleDateString('en-US', {weekday: 'long'}),
+        endDate: tomorrow.toLocaleDateString('en-US', {month: 'numeric', day: 'numeric', year: '2-digit'}),
+        endTime: tomorrow.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'}),
+        issuanceTimestamp: 
+          now.toLocaleDateString('en-US', {weekday: 'short'})
+          + ' '
+          + now.toLocaleDateString('en-US', {month: 'numeric', day: 'numeric', year: '2-digit'})
+          + ' '
+          + now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})
+      }
+      for (id in config) {
+        document.getElementById(id).textContent = config[id]; 
+      }
+    }
+    // Randomize numbers for parking pass, apartment, and permit as well as name
+    let randomize = function() {
+      function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min;
+      }
+      let config = {
+        parkingPassNumber: getRandomInt(37000,47000),
+        apartmentNumber: getRandomInt(100,900)
+      }
+      for (let id in config) {
+        document.getElementById(id).textContent = config[id]; 
+      }
+      let permitNumber = getRandomInt(2047000,2057000)
+      renderBarcode(permitNumber);
+//       location.href = 'http://www.buildinglink.com/v2/global/parkingpermits/printparkingpermit.aspx?id=' + permitNumber;
+      let lastNames = ['Smith','Johnson','Williams','Jones','Brown','Davis','Miller','Wilson','Moore','Taylor','Anderson','Thomas','Jackson','White','Harris','Martin','Thompson','Garcia','Martinez','Robinson']
+      document.getElementById('apartmentNames').textContent = lastNames[getRandomInt(0,lastNames.length)]
+    }
+    
+    // On DOM ready
+    if (
+        document.readyState === "complete" ||
+        (document.readyState !== "loading" && !document.documentElement.doScroll)
+    ) {
+      ready()
+    } else {
+      document.addEventListener("DOMContentLoaded", ready);
+    }
+  </script>
+</head>
+<body>
+  <div id="content">
+    <h1>APEX Guest Parking Pass - #<span id="parkingPassNumber">40000</span></h1>
+    <h2>APEX</h2>
+    <table>
+      <tr>
+        <td class="left period">
+            Valid From:<br>
+            <span class="datetime"><span id="startWeekday">Friday</span><br>
+            <span id="startDate">3/24/17</span><br>
+            <span id="startTime">3:46 PM</span></span>
+        </td>
+        <td class="right period">
+          Expires On:<br>
+          <span class="datetime"><span id="endWeekday">Saturday</span><br>
+          <span id="endDate">3/24/17</span><br>
+          <span id="endTime">3:46 PM</span></span>
+        </td>
+      </tr>
+      <tr>
+        <td class="left issuance">
+          <span class="label">Vehicle: </span><br>
+          <span class="label">License Plate: </span>
+        </td>
+        <td class="right issuance">
+          <span class="label">Issued on: </span><span id="issuanceTimestamp">Fri 3/24/17 3:46 PM</span><br>
+          <span class="label">Issued to: </span>Apt. <span id="apartmentNumber">400</span> - <span id="apartmentNames">Smith</span>
+        </td>
+      </tr>
+    </table>
+    <div class="contract">
+      By parking on the premises the vehicle owner/operator accepts sole responsibility for the vehicle and all<br>
+      personal property in and on the parking space. The Landlord shall have no liability to vehicle<br>
+      owner/operator for loss of personal items from theft, vandalism, fire, water, rainstorms, smoke,<br>
+      explosions, or other causes whatsoever. The vehicle owner/operator is required to remain on the premises<br>
+      while the vehicle is parked in guest parking. If it is believed the vehicle owner has abandoned or left the<br>
+      property without notifying Management the vehicle will be towed without notice. APEX&rsquo;s Guest policy<br>
+      allows Guests to park for a maximum of 14 days in a 30 day period.
+      <div class="barcode">
+        <svg id="barcode"></svg>
+      </div>
+    </div>
+    <hr>
+  </div>
+</body>
+</html>
