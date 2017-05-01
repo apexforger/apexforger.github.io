@@ -140,11 +140,7 @@
       document.getElementById('apartmentNames').textContent = lastNames[getRandomInt(0,lastNames.length)]
       let permitNumber = getRandomInt(2047000,2057000)
       renderBarcode(permitNumber);
-      try {
-        window.history.pushState({simulated: 'url'}, '', 'http://www.buildinglink.com/v2/global/parkingpermits/printparkingpermit.aspx?id=' + permitNumber)
-      } catch (e) {
-        console.log('window.history.pushState() failed')
-      }
+//       window.history.pushState({simulated: 'url'}, 'page2', 'http://www.buildinglink.com/v2/global/parkingpermits/printparkingpermit.aspx?id=' + permitNumber)
     }
     
     // On DOM ready
