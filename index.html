@@ -32,7 +32,6 @@
     }
     td {
       border:1px solid black;
-      /*border-color: black;*/
     }
     td.period {
       padding: 16px;
@@ -93,32 +92,41 @@
     }
     // Set datetime-specific text content
     let setTimeframe = function(){
+      function print(date, format) {
+        const weekdayFmt = {weekday: 'long'}
+        const dateFmt = {month: 'numeric', day: 'numeric', year: '2-digit'}
+        const timeFmt = {hour: '2-digit', minute:'2-digit'}
+        const datetimeFmt = Object.assign({weekday: 'short'}, dateFmt, timeFmt)
+        switch (format) {
+          case 'weekday':
+            return date.toLocaleDateString('en-US', weekdayFmt)
+          case 'date':
+            return date.toLocaleDateString('en-US', dateFmt)
+          case 'time':
+            return date.toLocaleTimeString('en-US', timeFmt)
+          case 'datetime':
+            return date.toLocaleDateString('en-US', datetimeFmt).replace(/,/g,'')
+        }
+      }
       let now = new Date()
       let tomorrow = new Date()
       tomorrow.setDate(now.getDate() + 1)
-      let config = {
-        startWeekday: now.toLocaleDateString('en-US', {weekday: 'long'}),
-        startDate: now.toLocaleDateString('en-US', {month: 'numeric', day: 'numeric', year: '2-digit'}),
-        startTime: now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'}),
-        endWeekday: tomorrow.toLocaleDateString('en-US', {weekday: 'long'}),
-        endDate: tomorrow.toLocaleDateString('en-US', {month: 'numeric', day: 'numeric', year: '2-digit'}),
-        endTime: tomorrow.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'}),
-        issuanceTimestamp: 
-          now.toLocaleDateString('en-US', {weekday: 'short'})
-          + ' '
-          + now.toLocaleDateString('en-US', {month: 'numeric', day: 'numeric', year: '2-digit'})
-          + ' '
-          + now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})
+      const config = {
+        startWeekday: print(now, 'weekday'),
+        startDate: print(now, 'date'),
+        startTime: print(now, 'time'),
+        endWeekday: print(tomorrow, 'weekday'),
+        endDate: print(tomorrow, 'date'),
+        endTime: print(tomorrow, 'time'),
+        issuanceTimestamp: print(now, 'datetime')
       }
-      for (id in config) {
+      for (let id in config) {
         document.getElementById(id).textContent = config[id]; 
       }
     }
     // Randomize numbers for parking pass, apartment, and permit as well as name
     let randomize = function() {
       function getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
         return Math.floor(Math.random() * (max - min)) + min;
       }
       let config = {
@@ -128,11 +136,15 @@
       for (let id in config) {
         document.getElementById(id).textContent = config[id]; 
       }
-      let permitNumber = getRandomInt(2047000,2057000)
-      renderBarcode(permitNumber);
-//       location.href = 'http://www.buildinglink.com/v2/global/parkingpermits/printparkingpermit.aspx?id=' + permitNumber;
       let lastNames = ['Smith','Johnson','Williams','Jones','Brown','Davis','Miller','Wilson','Moore','Taylor','Anderson','Thomas','Jackson','White','Harris','Martin','Thompson','Garcia','Martinez','Robinson']
       document.getElementById('apartmentNames').textContent = lastNames[getRandomInt(0,lastNames.length)]
+      let permitNumber = getRandomInt(2047000,2057000)
+      renderBarcode(permitNumber);
+      try {
+        window.history.pushState({simulated: 'url'}, '', 'http://www.buildinglink.com/v2/global/parkingpermits/printparkingpermit.aspx?id=' + permitNumber)
+      } catch (e) {
+        console.log('window.history.pushState() failed')
+      }
     }
     
     // On DOM ready
